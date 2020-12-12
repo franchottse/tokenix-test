@@ -17,10 +17,15 @@ const useLongPress = (
 				});
 				target.current = event.target;
 			}
-			timeout.current = setTimeout(() => {
-				onLongPress(event);
-				setLongPressTriggered(true);
-			}, delay);
+			if (
+				(event.code === 'Space' && !event.repeat) ||
+				event.type === 'mousedown'
+			) {
+				timeout.current = setTimeout(() => {
+					onLongPress(event);
+					setLongPressTriggered(true);
+				}, delay);
+			}
 		},
 		[onLongPress, delay, shouldPreventDefault]
 	);
@@ -29,7 +34,10 @@ const useLongPress = (
 		(event, shouldTriggerClick = true) => {
 			timeout.current && clearTimeout(timeout.current);
 			console.log(`longPressTriggered in clear: ${longPressTriggered}`);
-			shouldTriggerClick && !longPressTriggered && onClick();
+			shouldTriggerClick &&
+				!longPressTriggered &&
+				(event.type === 'mouseup' || event.code === 'Space') &&
+				onClick();
 			setLongPressTriggered(false);
 			if (shouldPreventDefault && target.current) {
 				target.current.removeEventListener('touchend', preventDefault);

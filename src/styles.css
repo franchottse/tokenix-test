@@ -7,3 +7,21 @@
 	align-items: center;
 	font-size: 32px;
 }
+
+.alert-shown {
+	opacity: 1;
+	transition: all 250ms linear;
+}
+
+.alert-hidden {
+	opacity: 0;
+	transition: all 250ms linear;
+}
+
+div.alert {
+	position: relative;
+	padding: 0.75rem 1.25rem;
+	margin-bottom: 0rem;
+	border: 1px solid transparent;
+	border-radius: 0.25rem;
+}
