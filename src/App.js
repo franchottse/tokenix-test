@@ -1,25 +1,87 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import './styles.css';
 import Alert from 'react-bootstrap/Alert';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import usePress from './usePress';
 
 export default function App() {
-	const [longPressCount, setlongPressCount] = useState(0);
-	const [clickCount, setClickCount] = useState(0);
 	const [morseCode, setMorseCode] = useState('');
 	const [pressedEnter, setPressedEnter] = useState(false);
-	const timeout = useRef();
+	const [message, setMessage] = useState('');
+	const alphabet = {
+		'-----': '0',
+		'.----': '1',
+		'..---': '2',
+		'...--': '3',
+		'....-': '4',
+		'.....': '5',
+		'-....': '6',
+		'--...': '7',
+		'---..': '8',
+		'----.': '9',
+		'.-': 'A',
+		'-...': 'B',
+		'-.-.': 'C',
+		'-..': 'D',
+		'.': 'E',
+		'..-.': 'F',
+		'--.': 'G',
+		'....': 'H',
+		'..': 'I',
+		'.---': 'J',
+		'-.-': 'K',
+		'.-..': 'L',
+		'--': 'M',
+		'-.': 'N',
+		'---': 'O',
+		'.--.': 'P',
+		'--.-': 'Q',
+		'.-.': 'R',
+		'...': 'S',
+		'-': 'T',
+		'..-': 'U',
+		'...-': 'V',
+		'.--': 'W',
+		'-..-': 'X',
+		'-.--': 'Y',
+		'--..': 'Z',
+		'/': ' ',
+		'-.-.--': '!',
+		'.-.-.-': '.',
+		'--..--': ',',
+	};
+
+	const decodeMorseCode = () => {
+		if (morseCode === '') {
+			setMessage('(Empty message)');
+			return;
+		}
+
+		console.log(`morseCode: ${morseCode}`);
+
+		setMorseCode('');
+
+		let messageConverted = [];
+
+		morseCode.split('//').forEach((word) => {
+			word.split('/').forEach((letter) => {
+				if (letter in alphabet) messageConverted.push(alphabet[letter]);
+				else messageConverted.push('■');
+			});
+			messageConverted.push(' ');
+		});
+
+		console.log(`decode result: ${messageConverted.join('')}`);
+		setMessage(messageConverted.join(''));
+	};
 
 	const onLongPress = () => {
 		console.log('longpress is triggered');
-		setlongPressCount((preLongPressCount) => preLongPressCount + 1);
 		setMorseCode((preMorseCode) => preMorseCode + '-');
 	};
 
 	const onClick = () => {
 		console.log('click is triggered');
-		setClickCount((preClickCount) => preClickCount + 1);
 		setMorseCode((preMorseCode) => preMorseCode + '.');
 	};
 
@@ -34,13 +96,15 @@ export default function App() {
 			case 'Enter':
 				console.log('You pressed Enter!');
 				setPressedEnter(true);
-				timeout.current = setTimeout(() => {
+				setTimeout(() => {
 					setPressedEnter(false);
 				}, 2500);
+				decodeMorseCode();
 				break;
 			case 'KeyS':
-				console.log('You pressed Key S!');
-				setMorseCode((preMorseCode) => preMorseCode + ' ');
+			case 'Slash':
+				console.log('You pressed Key S or Slash!');
+				setMorseCode((preMorseCode) => preMorseCode + '/');
 				break;
 			case 'Backspace':
 				console.log('You pressed Backspace!');
@@ -57,10 +121,10 @@ export default function App() {
 		switch (e.code) {
 			case 'Enter':
 				console.log('You released Enter!');
-
 				break;
 			case 'KeyS':
-				console.log('You released Key S!');
+			case 'Slash':
+				console.log('You released Key S or Slash!');
 				break;
 			case 'Backspace':
 				console.log('You pressed Backspace!');
@@ -91,15 +155,22 @@ export default function App() {
 	return (
 		<div className="App">
 			<h1>Morse Code Interpreter</h1>
+			<br />
 			<p>
 				Please press <strong>Space</strong> or{' '}
-				<strong>Left Click</strong> to input a morse code, Dash (-) for
-				pressing more than 1.5 sec, Dot (.) otherwise, and press key{' '}
-				<strong>S</strong> to add whitespace, you can also press
-				Backspace to remove last character.
+				<strong>Left Click</strong> to input a morse code,{' '}
+				<strong>Dash (-)</strong> for pressing more than 1.5 sec,{' '}
+				<strong>Dot (.)</strong> otherwise, and press key{' '}
+				<strong>S</strong> to add whitespace indicated by{' '}
+				<strong>Slash (/)</strong> (one space for separating characters,
+				three spaces for separating words), you can also press Backspace
+				to remove last character.
 			</p>
-			<span>Long press count: {longPressCount}</span>
-			<span>Click count: {clickCount}</span>
+			<br />
+			<p>
+				Note: If your input code does not exist in morse code, the
+				result will show <strong>Square (&#9632;)</strong>
+			</p>
 			<span>Morse Code: {morseCode}</span>
 			<br />
 			<br />
@@ -107,12 +178,6 @@ export default function App() {
 				className={`alert alert-success ${
 					pressedEnter ? 'alert-shown' : 'alert-hidden'
 				}`}
-				style={{
-					margin: '0px',
-					marginBottom: '0rem 0px',
-					padding: '0px',
-					border: '0px',
-				}}
 			>
 				<Alert
 					variant="success"
@@ -121,7 +186,7 @@ export default function App() {
 						fontSize: '38px',
 					}}
 				>
-					Message Sent: HELP ME!
+					Message Sent: {message}
 				</Alert>
 			</div>
 		</div>

@@ -6,6 +6,8 @@
 	justify-content: center;
 	align-items: center;
 	font-size: 32px;
+	min-height: 100vh;
+	background-image: linear-gradient(to top, #edd6d4 0%, #fcbfd6 100%);
 }
 
 .alert-shown {
